@@ -71,3 +71,41 @@ export default defineConfig([
   },
 ])
 ```
+
+# Song Checker Frontend
+
+## Running locally
+
+Install dependencies (only needed once):
+
+```bash
+npm install
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Vite will print a local URL (usually `http://localhost:5173`).
+
+## Deploying to Firebase Hosting
+
+Build the production bundle and deploy to Firebase:
+
+```bash
+npm run build
+firebase deploy --only hosting
+```
+
+The build step type-checks with `tsc -b` and outputs static assets to `dist/`, which Firebase then uploads.
+
+## Live URL
+
+Once deployed, the app is available at:
+
+- https://song-checker-5a454.web.app
+- https://song-checker-5a454.firebaseapp.com
+
+Both URLs serve the same deployment.
