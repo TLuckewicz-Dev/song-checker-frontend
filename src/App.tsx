@@ -50,7 +50,9 @@ function App() {
     <main>
       {stage === 'loader' && <Loader />}
       {stage === 'intro' && <IntroAnimation />}
-      {stage === 'search' && <Search />}
+      {stage === 'search' && spotifyToken && (
+        <Search spotifyToken={spotifyToken} />
+      )}
     </main>
   )
 }

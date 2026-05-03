@@ -17,6 +17,31 @@ export interface DuplicateCheckResponse {
   matches: DuplicateMatch[]
 }
 
+export interface SpotifyImage {
+  url: string
+  height: number | null
+  width: number | null
+}
+
+export interface SpotifyArtist {
+  name: string
+}
+
+export interface SpotifyTrack {
+  id: string
+  uri: string
+  name: string
+  artists: SpotifyArtist[]
+  album: {
+    name: string
+    images: SpotifyImage[]
+  }
+}
+
+interface SpotifySearchResponse {
+  tracks: { items: SpotifyTrack[] }
+}
+
 export async function getSpotifyToken(): Promise<SpotifyTokenResponse> {
   const response = await fetch(`${FUNCTIONS_BASE_URL}/getSpotifyToken`)
   if (!response.ok) {
@@ -37,4 +62,25 @@ export async function duplicateCheck(
     throw new Error(`duplicateCheck failed: ${response.status}`)
   }
   return (await response.json()) as DuplicateCheckResponse
+}
+
+export async function searchTracks(
+  query: string,
+  token: string,
+  signal?: AbortSignal,
+): Promise<SpotifyTrack[]> {
+  const url = new URL('https://api.spotify.com/v1/search')
+  url.searchParams.set('q', query)
+  url.searchParams.set('type', 'track')
+  url.searchParams.set('limit', '10')
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+    signal,
+  })
+  if (!response.ok) {
+    throw new Error(`searchTracks failed: ${response.status}`)
+  }
+  const data = (await response.json()) as SpotifySearchResponse
+  return data.tracks.items
 }
