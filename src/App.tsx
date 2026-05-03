@@ -1,11 +1,29 @@
+import { useEffect, useState } from 'react'
 import './App.css'
+import Loader from './components/Loader'
+import IntroAnimation from './components/IntroAnimation'
+import Search from './components/Search'
 
 const FUNCTIONS_BASE_URL =
   'https://us-central1-song-checker-5a454.cloudfunctions.net'
 
 const EXAMPLE_SPOTIFY_URI = 'spotify:track:4uvjOKsp7mSjrDhWdkLPBY'
 
+type Stage = 'loader' | 'intro' | 'search'
+
 function App() {
+  const [stage, setStage] = useState<Stage>('loader')
+
+  useEffect(() => {
+    const loaderTimeout = setTimeout(() => setStage('intro'), 2000)
+    const introTimeout = setTimeout(() => setStage('search'), 4000)
+
+    return () => {
+      clearTimeout(loaderTimeout)
+      clearTimeout(introTimeout)
+    }
+  }, [])
+
   const handleGetSpotifyToken = async () => {
     try {
       const response = await fetch(`${FUNCTIONS_BASE_URL}/getSpotifyToken`)
@@ -41,6 +59,9 @@ function App() {
           Check Duplicate
         </button>
       </div>
+      {stage === 'loader' && <Loader />}
+      {stage === 'intro' && <IntroAnimation />}
+      {stage === 'search' && <Search />}
     </main>
   )
 }
