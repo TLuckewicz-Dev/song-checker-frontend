@@ -3,9 +3,10 @@ import { searchTracks, type SpotifyTrack } from '../api'
 
 interface SearchProps {
   spotifyToken: string
+  onSelectTrack: (spotifyUri: string) => void
 }
 
-function Search({ spotifyToken }: SearchProps) {
+function Search({ spotifyToken, onSelectTrack }: SearchProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SpotifyTrack[]>([])
   const [loading, setLoading] = useState(false)
@@ -74,9 +75,8 @@ function Search({ spotifyToken }: SearchProps) {
   }, [isOpen])
 
   const handleSelect = (track: SpotifyTrack) => {
-    // TODO: hand off track.uri to the duplicateCheck flow.
-    console.log('selected', track.uri)
     setIsOpen(false)
+    onSelectTrack(track.uri)
   }
 
   const showDropdown = isOpen && query.trim().length > 0

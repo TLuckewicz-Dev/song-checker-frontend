@@ -3,14 +3,23 @@ import './App.css'
 import Loader from './components/Loader'
 import IntroAnimation from './components/IntroAnimation'
 import Search from './components/Search'
-import { getSpotifyToken } from './api'
+import Results from './components/Results'
+import {
+  duplicateCheck,
+  getSpotifyToken,
+  type DuplicateCheckResponse,
+} from './api'
 
-type Stage = 'loader' | 'intro' | 'search'
+type Stage = 'loader' | 'intro' | 'search' | 'check-loader' | 'results'
 
 function App() {
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null)
   const [minLoaderElapsed, setMinLoaderElapsed] = useState(false)
   const [introDone, setIntroDone] = useState(false)
+  const [selectedUri, setSelectedUri] = useState<string | null>(null)
+  const [checkMinElapsed, setCheckMinElapsed] = useState(false)
+  const [duplicateResponse, setDuplicateResponse] =
+    useState<DuplicateCheckResponse | null>(null)
 
   // On mount: kick off the Spotify token fetch and start the 2s minimum
   // loader timer. The loader stays visible until both finish.
@@ -44,14 +53,54 @@ function App() {
     return () => clearTimeout(introTimeout)
   }, [loaderDone])
 
-  const stage: Stage = !loaderDone ? 'loader' : !introDone ? 'intro' : 'search'
+  // Once a song is selected, kick off the duplicate check and a fresh 2s
+  // minimum loader timer. The loader stays visible until both finish.
+  useEffect(() => {
+    if (!selectedUri) return
+
+    const minTimeout = setTimeout(() => setCheckMinElapsed(true), 2000)
+
+    duplicateCheck(selectedUri)
+      .then((response) => setDuplicateResponse(response))
+      .catch((error) => {
+        // TODO: If duplicateCheck fails, `duplicateResponse` stays null and
+        // the loader will display indefinitely. Surface an error UI and/or
+        // retry instead of leaving the user stuck.
+        console.error('Failed to run duplicate check:', error)
+      })
+
+    return () => {
+      clearTimeout(minTimeout)
+    }
+  }, [selectedUri])
+
+  const checkLoaderDone = checkMinElapsed && duplicateResponse !== null
+
+  // Reset everything related to a song selection so the user is sent back
+  // to the search screen with a clean slate.
+  const handleBackToSearch = () => {
+    setSelectedUri(null)
+    setCheckMinElapsed(false)
+    setDuplicateResponse(null)
+  }
+
+  let stage: Stage
+  if (!loaderDone) stage = 'loader'
+  else if (!introDone) stage = 'intro'
+  else if (!selectedUri) stage = 'search'
+  else if (!checkLoaderDone) stage = 'check-loader'
+  else stage = 'results'
 
   return (
     <main>
       {stage === 'loader' && <Loader />}
       {stage === 'intro' && <IntroAnimation />}
       {stage === 'search' && spotifyToken && (
-        <Search spotifyToken={spotifyToken} />
+        <Search spotifyToken={spotifyToken} onSelectTrack={setSelectedUri} />
+      )}
+      {stage === 'check-loader' && <Loader />}
+      {stage === 'results' && duplicateResponse && (
+        <Results response={duplicateResponse} onBack={handleBackToSearch} />
       )}
     </main>
   )
