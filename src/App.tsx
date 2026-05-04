@@ -92,16 +92,60 @@ function App() {
   else stage = 'results'
 
   return (
-    <main>
-      {stage === 'loader' && <Loader />}
-      {stage === 'intro' && <IntroAnimation />}
-      {stage === 'search' && spotifyToken && (
-        <Search spotifyToken={spotifyToken} onSelectTrack={setSelectedUri} />
-      )}
-      {stage === 'check-loader' && <Loader />}
-      {stage === 'results' && duplicateResponse && (
-        <Results response={duplicateResponse} onBack={handleBackToSearch} />
-      )}
+    <main className="app">
+      <header className="app__header">
+        <div className="app__logo" aria-hidden="true">
+          <svg
+            className="app__logo-mark"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 18V5l12-2v13"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <circle
+              cx="6"
+              cy="18"
+              r="3"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            />
+            <circle
+              cx="18"
+              cy="16"
+              r="3"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            />
+          </svg>
+        </div>
+        <div>
+          <div className="app__title">Song Checker</div>
+          <div className="app__subtitle">Find duplicate submissions</div>
+        </div>
+      </header>
+
+      <div className="app__main">
+        <div className="app__stage" key={stage}>
+          {stage === 'loader' && <Loader label="Connecting to Spotify" />}
+          {stage === 'intro' && <IntroAnimation />}
+          {stage === 'search' && spotifyToken && (
+            <Search
+              spotifyToken={spotifyToken}
+              onSelectTrack={setSelectedUri}
+            />
+          )}
+          {stage === 'check-loader' && <Loader label="Checking for duplicates" />}
+          {stage === 'results' && duplicateResponse && (
+            <Results response={duplicateResponse} onBack={handleBackToSearch} />
+          )}
+        </div>
+      </div>
     </main>
   )
 }

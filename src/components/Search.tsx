@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { searchTracks, type SpotifyTrack } from '../api'
+import './Search.css'
 
 interface SearchProps {
   spotifyToken: string
@@ -82,122 +83,102 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
   const showDropdown = isOpen && query.trim().length > 0
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        position: 'relative',
-        width: 400,
-        border: '2px solid limegreen',
-        padding: '16px',
-      }}
-    >
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => {
-          const value = e.target.value
-          setQuery(value)
-          setIsOpen(true)
-          if (!value.trim()) {
-            setResults([])
-            setError(null)
-            setLoading(false)
-          }
-        }}
-        onFocus={() => setIsOpen(true)}
-        placeholder="Search for a song..."
-        style={{
-          width: '100%',
-          padding: 8,
-          fontSize: 16,
-          boxSizing: 'border-box',
-        }}
-      />
+    <div ref={containerRef} className="search">
+      <div className="search__field">
+        <svg
+          className="search__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle
+            cx="11"
+            cy="11"
+            r="7"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <path
+            d="m20 20-3.5-3.5"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+        <input
+          className="search__input"
+          type="text"
+          value={query}
+          onChange={(e) => {
+            const value = e.target.value
+            setQuery(value)
+            setIsOpen(true)
+            if (!value.trim()) {
+              setResults([])
+              setError(null)
+              setLoading(false)
+            }
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder="Search for a song..."
+          autoComplete="off"
+          spellCheck={false}
+        />
+      </div>
 
       {showDropdown && (
-        <ul
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            margin: 0,
-            padding: 0,
-            listStyle: 'none',
-            background: 'white',
-            border: '1px solid #ccc',
-            borderTop: 'none',
-            maxHeight: 320,
-            overflowY: 'auto',
-            zIndex: 10,
-            color: '#111',
-          }}
-        >
-          {loading && <li style={{ padding: 8 }}>Searching…</li>}
+        <div className="search__dropdown" role="listbox">
+          {loading && <div className="search__status">Searching…</div>}
           {error && (
-            <li style={{ padding: 8, color: 'crimson' }}>{error}</li>
+            <div className="search__status search__status--error">
+              {error}
+            </div>
           )}
           {!loading && !error && results.length === 0 && (
-            <li style={{ padding: 8, color: '#666' }}>No results</li>
+            <div className="search__status">No results</div>
           )}
-          {!loading &&
-            !error &&
-            results.map((track) => {
-              const cover =
-                track.album.images[track.album.images.length - 1]?.url
-              return (
-                <li
-                  key={track.id}
-                  onClick={() => handleSelect(track)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: 8,
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = '#f3f3f3')
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = 'transparent')
-                  }
-                >
-                  {cover && (
-                    <img
-                      src={cover}
-                      alt=""
-                      width={40}
-                      height={40}
-                      style={{ flexShrink: 0, borderRadius: 2 }}
-                    />
-                  )}
-                  <div style={{ minWidth: 0 }}>
-                    <div
-                      style={{
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
+          {!loading && !error && results.length > 0 && (
+            <ul className="search__option-list">
+              {results.map((track) => {
+                const cover = track.album.images[0]?.url
+                return (
+                  <li key={track.id}>
+                    <button
+                      type="button"
+                      className="search__option"
+                      onClick={() => handleSelect(track)}
+                      role="option"
                     >
-                      {track.name}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: '#666',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {track.artists.map((a) => a.name).join(', ')}
-                    </div>
-                  </div>
-                </li>
-              )
-            })}
-        </ul>
+                      {cover ? (
+                        <img
+                          src={cover}
+                          alt=""
+                          width={44}
+                          height={44}
+                          className="search__cover"
+                        />
+                      ) : (
+                        <div
+                          className="search__cover-placeholder"
+                          aria-hidden="true"
+                        >
+                          ♪
+                        </div>
+                      )}
+                      <div className="search__meta">
+                        <div className="search__name">{track.name}</div>
+                        <div className="search__artists">
+                          {track.artists.map((a) => a.name).join(', ')}
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
       )}
     </div>
   )

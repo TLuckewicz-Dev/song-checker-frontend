@@ -1,18 +1,18 @@
 import './Loader.css'
 
-function Loader() {
+interface LoaderProps {
+  label?: string
+}
+
+function Loader({ label = 'Loading' }: LoaderProps) {
   return (
-    <div
-      style={{
-        border: '2px solid tomato',
-        padding: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-      }}
-    >
-      <div className="loader-spinner" aria-label="Loading" role="status" />
-      <span>Loader</span>
+    <div className="loader">
+      <div
+        className="loader__spinner"
+        aria-label={label}
+        role="status"
+      />
+      <span className="loader__label">{label}…</span>
     </div>
   )
 }
