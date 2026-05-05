@@ -96,12 +96,11 @@
 
 .intro__title {
   font-family: 'Unbounded', var(--font-sans);
-  font-size: clamp(28px, 11vw, 96px);
+  font-size: clamp(28px, 10vw, 96px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  white-space: normal;
-  text-wrap: balance;
+  white-space: nowrap;
   max-width: 100%;
   padding-inline: 0.15em;
   padding-bottom: 0.1em;
