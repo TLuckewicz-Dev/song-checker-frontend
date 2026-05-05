@@ -5,6 +5,10 @@
   padding: 24px 16px 48px;
 }
 
+.app--intro {
+  padding: 0;
+}
+
 .app__header {
   width: 100%;
   max-width: 480px;
