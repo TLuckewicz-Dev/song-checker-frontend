@@ -118,9 +118,18 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
             strokeLinecap="round"
           />
         </svg>
+        {/*
+         * `type="search"` plus a non-credential `name` are the strongest hints
+         * we can give iOS Chrome/Safari that this isn't a login or payment
+         * field, which suppresses the Passwords / Credit Cards autofill
+         * toolbar that otherwise eats vertical space above the keyboard.
+         * `autoComplete`/`autoCorrect`/`autoCapitalize` reinforce that and
+         * stop song titles from being "corrected" mid-typing.
+         */}
         <input
           className="search__input"
-          type="text"
+          type="search"
+          name="song-search"
           value={query}
           onChange={(e) => {
             const value = e.target.value
@@ -135,7 +144,11 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
           onFocus={() => setIsOpen(true)}
           placeholder="Search for a song..."
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
           spellCheck={false}
+          inputMode="search"
+          enterKeyHint="search"
         />
       </div>
 
