@@ -10,21 +10,21 @@ import {
   type DuplicateCheckResponse,
 } from './api'
 
-type Stage = 'loader' | 'intro' | 'search' | 'check-loader' | 'results'
+type Stage = 'intro' | 'loader' | 'search' | 'check-loader' | 'results'
 
 function App() {
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null)
-  const [minLoaderElapsed, setMinLoaderElapsed] = useState(false)
   const [introDone, setIntroDone] = useState(false)
   const [selectedUri, setSelectedUri] = useState<string | null>(null)
   const [checkMinElapsed, setCheckMinElapsed] = useState(false)
   const [duplicateResponse, setDuplicateResponse] =
     useState<DuplicateCheckResponse | null>(null)
 
-  // On mount: kick off the Spotify token fetch and start the 2s minimum
-  // loader timer. The loader stays visible until both finish.
+  // On mount: kick off the Spotify token fetch in the background and start
+  // the 5s intro timer. The token request runs in parallel with the intro
+  // so it's typically ready by the time the intro finishes.
   useEffect(() => {
-    const minLoaderTimeout = setTimeout(() => setMinLoaderElapsed(true), 2000)
+    const introTimeout = setTimeout(() => setIntroDone(true), 5000)
 
     getSpotifyToken()
       .then((response) => {
@@ -39,19 +39,9 @@ function App() {
       })
 
     return () => {
-      clearTimeout(minLoaderTimeout)
+      clearTimeout(introTimeout)
     }
   }, [])
-
-  const loaderDone = minLoaderElapsed && spotifyToken !== null
-
-  // Once the loader finishes, show the intro animation for 2s before
-  // advancing to the search screen.
-  useEffect(() => {
-    if (!loaderDone) return
-    const introTimeout = setTimeout(() => setIntroDone(true), 2000)
-    return () => clearTimeout(introTimeout)
-  }, [loaderDone])
 
   // Once a song is selected, kick off the duplicate check and a fresh 2s
   // minimum loader timer. The loader stays visible until both finish.
@@ -85,23 +75,37 @@ function App() {
   }
 
   let stage: Stage
-  if (!loaderDone) stage = 'loader'
-  else if (!introDone) stage = 'intro'
+  if (!introDone) stage = 'intro'
+  else if (!spotifyToken) stage = 'loader'
   else if (!selectedUri) stage = 'search'
   else if (!checkLoaderDone) stage = 'check-loader'
   else stage = 'results'
 
+  if (stage === 'intro') {
+    return (
+      <main className="app app--intro">
+        <IntroAnimation />
+      </main>
+    )
+  }
+
   return (
-    <main>
-      {stage === 'loader' && <Loader />}
-      {stage === 'intro' && <IntroAnimation />}
-      {stage === 'search' && spotifyToken && (
-        <Search spotifyToken={spotifyToken} onSelectTrack={setSelectedUri} />
-      )}
-      {stage === 'check-loader' && <Loader />}
-      {stage === 'results' && duplicateResponse && (
-        <Results response={duplicateResponse} onBack={handleBackToSearch} />
-      )}
+    <main className="app">
+      <div className="app__main">
+        <div className="app__stage" key={stage}>
+          {stage === 'loader' && <Loader label="Connecting to Spotify" />}
+          {stage === 'search' && spotifyToken && (
+            <Search
+              spotifyToken={spotifyToken}
+              onSelectTrack={setSelectedUri}
+            />
+          )}
+          {stage === 'check-loader' && <Loader label="Checking for duplicates" />}
+          {stage === 'results' && duplicateResponse && (
+            <Results response={duplicateResponse} onBack={handleBackToSearch} />
+          )}
+        </div>
+      </div>
     </main>
   )
 }
