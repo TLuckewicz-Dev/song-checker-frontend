@@ -28,7 +28,7 @@ function IntroAnimation() {
             aria-hidden="true"
             style={{ animationDelay: `${0.45 + i * 0.05}s` }}
           >
-            {char === ' ' ? '\u00A0' : char}
+            {char}
           </span>
         ))}
       </h1>
