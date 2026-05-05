@@ -84,6 +84,18 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
 
   return (
     <div ref={containerRef} className="search">
+      <header className="search__header">
+        <div className="search__equalizer" aria-hidden="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <span key={i} className="search__bar" />
+          ))}
+        </div>
+        <div className="search__heading">
+          <h1 className="search__title">Song Checker</h1>
+          <p className="search__subtitle">Check for duplicate songs</p>
+        </div>
+      </header>
+
       <div className="search__field">
         <svg
           className="search__icon"
