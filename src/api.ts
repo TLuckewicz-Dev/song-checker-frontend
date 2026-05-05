@@ -38,6 +38,14 @@ export interface SpotifyTrack {
   }
 }
 
+export interface SelectedTrack {
+  uri: string
+  name: string
+  artists: string
+  albumName: string
+  albumImageUrl: string | null
+}
+
 interface SpotifySearchResponse {
   tracks: { items: SpotifyTrack[] }
 }

@@ -1,7 +1,8 @@
-import type { DuplicateCheckResponse } from '../api'
+import type { DuplicateCheckResponse, SelectedTrack } from '../api'
 import './Results.css'
 
 interface ResultsProps {
+  track: SelectedTrack
   response: DuplicateCheckResponse
   onBack: () => void
 }
@@ -20,7 +21,7 @@ function getResultState(matches: DuplicateCheckResponse['matches']): ResultState
   return 'recent'
 }
 
-function Results({ response, onBack }: ResultsProps) {
+function Results({ track, response, onBack }: ResultsProps) {
   const { matches } = response
   const state = getResultState(matches)
 
@@ -61,6 +62,33 @@ function Results({ response, onBack }: ResultsProps) {
         </svg>
         Back to Search
       </button>
+
+      <div className="results__track">
+        {track.albumImageUrl ? (
+          <img
+            src={track.albumImageUrl}
+            alt=""
+            className="results__track-cover"
+            width={128}
+            height={128}
+          />
+        ) : (
+          <div className="results__track-cover-placeholder" aria-hidden="true">
+            ♪
+          </div>
+        )}
+        <div className="results__track-meta">
+          <div className="results__track-name" title={track.name}>
+            {track.name}
+          </div>
+          <div className="results__track-artists" title={track.artists}>
+            {track.artists}
+          </div>
+          <div className="results__track-album" title={track.albumName}>
+            {track.albumName}
+          </div>
+        </div>
+      </div>
 
       <div className={`results__card results__card--${state}`}>
         <div className="results__status">

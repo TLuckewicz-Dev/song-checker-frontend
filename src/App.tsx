@@ -8,6 +8,7 @@ import {
   duplicateCheck,
   getSpotifyToken,
   type DuplicateCheckResponse,
+  type SelectedTrack,
 } from './api'
 
 type Stage = 'intro' | 'loader' | 'search' | 'check-loader' | 'results'
@@ -15,7 +16,7 @@ type Stage = 'intro' | 'loader' | 'search' | 'check-loader' | 'results'
 function App() {
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null)
   const [introDone, setIntroDone] = useState(false)
-  const [selectedUri, setSelectedUri] = useState<string | null>(null)
+  const [selectedTrack, setSelectedTrack] = useState<SelectedTrack | null>(null)
   const [checkMinElapsed, setCheckMinElapsed] = useState(false)
   const [duplicateResponse, setDuplicateResponse] =
     useState<DuplicateCheckResponse | null>(null)
@@ -46,11 +47,11 @@ function App() {
   // Once a song is selected, kick off the duplicate check and a fresh 2s
   // minimum loader timer. The loader stays visible until both finish.
   useEffect(() => {
-    if (!selectedUri) return
+    if (!selectedTrack) return
 
     const minTimeout = setTimeout(() => setCheckMinElapsed(true), 2000)
 
-    duplicateCheck(selectedUri)
+    duplicateCheck(selectedTrack.uri)
       .then((response) => setDuplicateResponse(response))
       .catch((error) => {
         // TODO: If duplicateCheck fails, `duplicateResponse` stays null and
@@ -62,14 +63,14 @@ function App() {
     return () => {
       clearTimeout(minTimeout)
     }
-  }, [selectedUri])
+  }, [selectedTrack])
 
   const checkLoaderDone = checkMinElapsed && duplicateResponse !== null
 
   // Reset everything related to a song selection so the user is sent back
   // to the search screen with a clean slate.
   const handleBackToSearch = () => {
-    setSelectedUri(null)
+    setSelectedTrack(null)
     setCheckMinElapsed(false)
     setDuplicateResponse(null)
   }
@@ -77,7 +78,7 @@ function App() {
   let stage: Stage
   if (!introDone) stage = 'intro'
   else if (!spotifyToken) stage = 'loader'
-  else if (!selectedUri) stage = 'search'
+  else if (!selectedTrack) stage = 'search'
   else if (!checkLoaderDone) stage = 'check-loader'
   else stage = 'results'
 
@@ -97,12 +98,16 @@ function App() {
           {stage === 'search' && spotifyToken && (
             <Search
               spotifyToken={spotifyToken}
-              onSelectTrack={setSelectedUri}
+              onSelectTrack={setSelectedTrack}
             />
           )}
           {stage === 'check-loader' && <Loader label="Checking for duplicates" />}
-          {stage === 'results' && duplicateResponse && (
-            <Results response={duplicateResponse} onBack={handleBackToSearch} />
+          {stage === 'results' && duplicateResponse && selectedTrack && (
+            <Results
+              track={selectedTrack}
+              response={duplicateResponse}
+              onBack={handleBackToSearch}
+            />
           )}
         </div>
       </div>

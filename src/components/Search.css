@@ -289,3 +289,12 @@
   text-overflow: ellipsis;
   margin-top: 2px;
 }
+
+.search__album {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}

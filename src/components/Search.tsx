@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { searchTracks, type SpotifyTrack } from '../api'
+import {
+  searchTracks,
+  type SelectedTrack,
+  type SpotifyTrack,
+} from '../api'
 import './Search.css'
 
 interface SearchProps {
   spotifyToken: string
-  onSelectTrack: (spotifyUri: string) => void
+  onSelectTrack: (track: SelectedTrack) => void
 }
 
 function Search({ spotifyToken, onSelectTrack }: SearchProps) {
@@ -77,7 +81,13 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
 
   const handleSelect = (track: SpotifyTrack) => {
     setIsOpen(false)
-    onSelectTrack(track.uri)
+    onSelectTrack({
+      uri: track.uri,
+      name: track.name,
+      artists: track.artists.map((a) => a.name).join(', '),
+      albumName: track.album.name,
+      albumImageUrl: track.album.images[0]?.url ?? null,
+    })
   }
 
   const showDropdown = isOpen && query.trim().length > 0
@@ -196,6 +206,7 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
                         <div className="search__artists">
                           {track.artists.map((a) => a.name).join(', ')}
                         </div>
+                        <div className="search__album">{track.album.name}</div>
                       </div>
                     </button>
                   </li>
