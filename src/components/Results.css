@@ -42,6 +42,16 @@
     var(--color-bg-elevated);
 }
 
+.results__card--stale {
+  border-color: rgba(255, 200, 87, 0.35);
+  background: linear-gradient(
+      180deg,
+      rgba(255, 200, 87, 0.07),
+      transparent 60%
+    ),
+    var(--color-bg-elevated);
+}
+
 .results__status {
   display: flex;
   align-items: center;
@@ -62,9 +72,14 @@
   color: var(--color-accent);
 }
 
-.results__status-icon--match {
+.results__status-icon--recent {
   background: rgba(255, 92, 122, 0.12);
   color: var(--color-danger);
+}
+
+.results__status-icon--stale {
+  background: rgba(255, 200, 87, 0.14);
+  color: #ffc857;
 }
 
 .results__heading {

@@ -6,9 +6,35 @@ interface ResultsProps {
   onBack: () => void
 }
 
+type ResultState = 'clean' | 'recent' | 'stale'
+
+const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000
+
+function getResultState(matches: DuplicateCheckResponse['matches']): ResultState {
+  if (matches.length === 0) return 'clean'
+  // Backend returns matches with the most recent submission first.
+  const mostRecent = new Date(matches[0].created).getTime()
+  if (Number.isFinite(mostRecent) && Date.now() - mostRecent > ONE_YEAR_MS) {
+    return 'stale'
+  }
+  return 'recent'
+}
+
 function Results({ response, onBack }: ResultsProps) {
   const { matches } = response
-  const isClean = matches.length === 0
+  const state = getResultState(matches)
+
+  const heading =
+    state === 'clean'
+      ? 'No duplicates found'
+      : `Found ${matches.length} duplicate${matches.length === 1 ? '' : 's'}`
+
+  const subheading =
+    state === 'clean'
+      ? 'This song is fair game'
+      : state === 'stale'
+        ? 'This song was last sent over a year ago, submit at your own risk.'
+        : 'This song has been submitted within the last year.'
 
   return (
     <div className="results">
@@ -33,25 +59,16 @@ function Results({ response, onBack }: ResultsProps) {
             strokeLinejoin="round"
           />
         </svg>
-        Check another song
+        Back to Search
       </button>
 
-      <div
-        className={
-          'results__card' + (isClean ? ' results__card--clean' : '')
-        }
-      >
+      <div className={`results__card results__card--${state}`}>
         <div className="results__status">
           <div
-            className={
-              'results__status-icon ' +
-              (isClean
-                ? 'results__status-icon--clean'
-                : 'results__status-icon--match')
-            }
+            className={`results__status-icon results__status-icon--${state}`}
             aria-hidden="true"
           >
-            {isClean ? (
+            {state === 'clean' && (
               <svg
                 width="20"
                 height="20"
@@ -67,7 +84,8 @@ function Results({ response, onBack }: ResultsProps) {
                   strokeLinejoin="round"
                 />
               </svg>
-            ) : (
+            )}
+            {state === 'recent' && (
               <svg
                 width="20"
                 height="20"
@@ -91,25 +109,38 @@ function Results({ response, onBack }: ResultsProps) {
                 />
               </svg>
             )}
+            {state === 'stale' && (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 3.5 2.5 20.5h19L12 3.5Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 10v4.5"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <circle cx="12" cy="17.5" r="1.1" fill="currentColor" />
+              </svg>
+            )}
           </div>
           <div>
-            <div className="results__heading">
-              {isClean
-                ? 'No duplicates found'
-                : `Found ${matches.length} duplicate${
-                    matches.length === 1 ? '' : 's'
-                  }`}
-            </div>
-            <div className="results__subheading">
-              {isClean
-                ? 'This song is fair game'
-                : 'This song has been submitted before'}
-            </div>
+            <div className="results__heading">{heading}</div>
+            <div className="results__subheading">{subheading}</div>
           </div>
         </div>
       </div>
 
-      {!isClean && (
+      {state !== 'clean' && (
         <ul className="results__list">
           {matches.map((match, i) => (
             <li key={i} className="results__match">
