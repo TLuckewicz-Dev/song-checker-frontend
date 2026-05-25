@@ -72,6 +72,23 @@ export async function duplicateCheck(
   return (await response.json()) as DuplicateCheckResponse
 }
 
+export interface AskOpenAIResponse {
+  reply: string
+  model: string
+}
+
+export async function askOpenAI(prompt: string): Promise<AskOpenAIResponse> {
+  const response = await fetch(`${FUNCTIONS_BASE_URL}/askOpenAI`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, group: '908beanbagboys' }),
+  })
+  if (!response.ok) {
+    throw new Error(`askOpenAI failed: ${response.status}`)
+  }
+  return (await response.json()) as AskOpenAIResponse
+}
+
 export async function searchTracks(
   query: string,
   token: string,

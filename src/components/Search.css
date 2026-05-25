@@ -139,6 +139,30 @@
   }
 }
 
+.search__ai-mode {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  transition: color 150ms ease, border-color 150ms ease, background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.search__ai-mode:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+  box-shadow: 0 0 0 3px var(--color-accent-dim);
+}
+
 .search__field {
   position: relative;
   display: flex;

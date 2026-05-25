@@ -9,9 +9,10 @@ import './Search.css'
 interface SearchProps {
   spotifyToken: string
   onSelectTrack: (track: SelectedTrack) => void
+  onEnterAiMode: () => void
 }
 
-function Search({ spotifyToken, onSelectTrack }: SearchProps) {
+function Search({ spotifyToken, onSelectTrack, onEnterAiMode }: SearchProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SpotifyTrack[]>([])
   const [loading, setLoading] = useState(false)
@@ -105,6 +106,31 @@ function Search({ spotifyToken, onSelectTrack }: SearchProps) {
           <p className="search__subtitle">Check for duplicate songs</p>
         </div>
       </header>
+
+      <button
+        type="button"
+        className="search__ai-mode"
+        onClick={onEnterAiMode}
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z"
+            fill="currentColor"
+          />
+          <path
+            d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z"
+            fill="currentColor"
+          />
+        </svg>
+        AI Mode
+      </button>
 
       <div className="search__field">
         <svg

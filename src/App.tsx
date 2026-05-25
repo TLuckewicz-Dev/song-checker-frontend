@@ -4,6 +4,7 @@ import Loader from './components/Loader'
 import IntroAnimation from './components/IntroAnimation'
 import Search from './components/Search'
 import Results from './components/Results'
+import AIMode from './components/AIMode'
 import {
   duplicateCheck,
   getSpotifyToken,
@@ -11,7 +12,13 @@ import {
   type SelectedTrack,
 } from './api'
 
-type Stage = 'intro' | 'loader' | 'search' | 'check-loader' | 'results'
+type Stage =
+  | 'intro'
+  | 'loader'
+  | 'search'
+  | 'ai-mode'
+  | 'check-loader'
+  | 'results'
 
 function App() {
   const [spotifyToken, setSpotifyToken] = useState<string | null>(null)
@@ -20,6 +27,7 @@ function App() {
   const [checkMinElapsed, setCheckMinElapsed] = useState(false)
   const [duplicateResponse, setDuplicateResponse] =
     useState<DuplicateCheckResponse | null>(null)
+  const [aiModeActive, setAiModeActive] = useState(false)
 
   // On mount: kick off the Spotify token fetch in the background and start
   // the 5s intro timer. The token request runs in parallel with the intro
@@ -73,11 +81,16 @@ function App() {
     setSelectedTrack(null)
     setCheckMinElapsed(false)
     setDuplicateResponse(null)
+    setAiModeActive(false)
   }
+
+  const handleEnterAiMode = () => setAiModeActive(true)
+  const handleExitAiMode = () => setAiModeActive(false)
 
   let stage: Stage
   if (!introDone) stage = 'intro'
   else if (!spotifyToken) stage = 'loader'
+  else if (!selectedTrack && aiModeActive) stage = 'ai-mode'
   else if (!selectedTrack) stage = 'search'
   else if (!checkLoaderDone) stage = 'check-loader'
   else stage = 'results'
@@ -99,8 +112,10 @@ function App() {
             <Search
               spotifyToken={spotifyToken}
               onSelectTrack={setSelectedTrack}
+              onEnterAiMode={handleEnterAiMode}
             />
           )}
+          {stage === 'ai-mode' && <AIMode onBack={handleExitAiMode} />}
           {stage === 'check-loader' && <Loader label="Checking for duplicates" />}
           {stage === 'results' && duplicateResponse && selectedTrack && (
             <Results
