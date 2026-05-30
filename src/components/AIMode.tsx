@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
-import { askOpenAI } from '../api'
-import Loader from './Loader'
-import './AIMode.css'
+import { useEffect, useRef, useState } from "react";
+import { askOpenAI } from "../api";
+import Loader from "./Loader";
+import "./AIMode.css";
 
 interface AIModeProps {
-  onBack: () => void
+  onBack: () => void;
 }
 
-type View = 'input' | 'loading' | 'response'
+type View = "input" | "loading" | "response";
 
-const MAX_PROMPT_LENGTH = 500
+const MAX_PROMPT_LENGTH = 500;
 
-// Tune typewriter feel: target ~6s for very long replies, ~30ms/char for short.
-const TYPEWRITER_INTERVAL_MS = 18
-const TYPEWRITER_MAX_DURATION_MS = 6000
+// Tune typewriter feel: target ~12s for very long replies, ~45ms/char for short.
+const TYPEWRITER_INTERVAL_MS = 45;
+const TYPEWRITER_MAX_DURATION_MS = 12000;
 
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
@@ -36,17 +36,17 @@ function BackButton({ onClick }: { onClick: () => void }) {
       </svg>
       Back to Search
     </button>
-  )
+  );
 }
 
 function AIMode({ onBack }: AIModeProps) {
-  const [view, setView] = useState<View>('input')
-  const [prompt, setPrompt] = useState('')
-  const [reply, setReply] = useState('')
-  const [displayedReply, setDisplayedReply] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [view, setView] = useState<View>("input");
+  const [prompt, setPrompt] = useState("");
+  const [reply, setReply] = useState("");
+  const [displayedReply, setDisplayedReply] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const intervalRef = useRef<number | null>(null)
+  const intervalRef = useRef<number | null>(null);
 
   // Typewriter effect: progress `displayedReply` toward `reply` over time.
   // For very long replies, advance multiple characters per tick so the total
@@ -54,81 +54,83 @@ function AIMode({ onBack }: AIModeProps) {
   // reduced motion get the full reply set up-front in `handleSubmit`, so this
   // effect simply skips animation when `displayedReply` already matches.
   useEffect(() => {
-    if (!reply) return
-    if (displayedReply.length >= reply.length) return
+    if (!reply) return;
+    if (displayedReply.length >= reply.length) return;
 
-    const totalTicks = Math.ceil(TYPEWRITER_MAX_DURATION_MS / TYPEWRITER_INTERVAL_MS)
-    const charsPerTick = Math.max(1, Math.ceil(reply.length / totalTicks))
+    const totalTicks = Math.ceil(
+      TYPEWRITER_MAX_DURATION_MS / TYPEWRITER_INTERVAL_MS,
+    );
+    const charsPerTick = Math.max(1, Math.ceil(reply.length / totalTicks));
 
-    let index = displayedReply.length
+    let index = displayedReply.length;
     intervalRef.current = window.setInterval(() => {
-      index = Math.min(index + charsPerTick, reply.length)
-      setDisplayedReply(reply.slice(0, index))
+      index = Math.min(index + charsPerTick, reply.length);
+      setDisplayedReply(reply.slice(0, index));
       if (index >= reply.length && intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current)
-        intervalRef.current = null
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
-    }, TYPEWRITER_INTERVAL_MS)
+    }, TYPEWRITER_INTERVAL_MS);
 
     return () => {
       if (intervalRef.current !== null) {
-        window.clearInterval(intervalRef.current)
-        intervalRef.current = null
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
-    }
+    };
     // We intentionally only re-run when `reply` changes; `displayedReply` is
     // mutated by this effect itself and including it would cause an immediate
     // restart on every tick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reply])
+  }, [reply]);
 
   const handleSubmit = async () => {
-    const trimmed = prompt.trim().slice(0, MAX_PROMPT_LENGTH)
-    if (!trimmed) return
+    const trimmed = prompt.trim().slice(0, MAX_PROMPT_LENGTH);
+    if (!trimmed) return;
 
-    setView('loading')
-    setError(null)
+    setView("loading");
+    setError(null);
     try {
-      const result = await askOpenAI(trimmed)
+      const result = await askOpenAI(trimmed);
       const prefersReducedMotion =
-        typeof window !== 'undefined' &&
-        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+        typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-      setReply(result.reply)
-      setDisplayedReply(prefersReducedMotion ? result.reply : '')
-      setView('response')
+      setReply(result.reply);
+      setDisplayedReply(prefersReducedMotion ? result.reply : "");
+      setView("response");
     } catch (err) {
-      console.error('askOpenAI failed:', err)
-      setError('Something went wrong. Please try again.')
-      setView('input')
+      console.error("askOpenAI failed:", err);
+      setError("Something went wrong. Please try again.");
+      setView("input");
     }
-  }
+  };
 
   const handleAskAnother = () => {
     if (intervalRef.current !== null) {
-      window.clearInterval(intervalRef.current)
-      intervalRef.current = null
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-    setPrompt('')
-    setReply('')
-    setDisplayedReply('')
-    setError(null)
-    setView('input')
-  }
+    setPrompt("");
+    setReply("");
+    setDisplayedReply("");
+    setError(null);
+    setView("input");
+  };
 
   // Tap-to-complete: clicking the response card while typing finishes the
   // animation immediately.
   const handleSkipTypewriter = () => {
-    if (!reply || displayedReply.length === reply.length) return
+    if (!reply || displayedReply.length === reply.length) return;
     if (intervalRef.current !== null) {
-      window.clearInterval(intervalRef.current)
-      intervalRef.current = null
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-    setDisplayedReply(reply)
-  }
+    setDisplayedReply(reply);
+  };
 
-  const isTyping = view === 'response' && displayedReply.length < reply.length
-  const canSubmit = prompt.trim().length > 0 && view !== 'loading'
+  const isTyping = view === "response" && displayedReply.length < reply.length;
+  const canSubmit = prompt.trim().length > 0 && view !== "loading";
 
   return (
     <div className="ai-mode">
@@ -137,17 +139,19 @@ function AIMode({ onBack }: AIModeProps) {
       <header className="ai-mode__header">
         <h1 className="ai-mode__title">AI Mode</h1>
         <p className="ai-mode__subtitle">
-          Ask questions based on our Music League history
+          Ask questions based on Music League history
         </p>
       </header>
 
-      {view === 'input' && (
+      {view === "input" && (
         <>
           <div className="ai-mode__field">
             <textarea
               className="ai-mode__textarea"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value.slice(0, MAX_PROMPT_LENGTH))}
+              onChange={(e) =>
+                setPrompt(e.target.value.slice(0, MAX_PROMPT_LENGTH))
+              }
               maxLength={MAX_PROMPT_LENGTH}
               rows={5}
               autoFocus
@@ -170,16 +174,16 @@ function AIMode({ onBack }: AIModeProps) {
         </>
       )}
 
-      {view === 'loading' && <Loader label="Thinking" />}
+      {view === "loading" && <Loader label="Thinking" />}
 
-      {view === 'response' && (
+      {view === "response" && (
         <>
           <div
             className="ai-mode__response"
             onClick={handleSkipTypewriter}
-            role={isTyping ? 'button' : undefined}
+            role={isTyping ? "button" : undefined}
             tabIndex={isTyping ? 0 : undefined}
-            title={isTyping ? 'Click to skip animation' : undefined}
+            title={isTyping ? "Click to skip animation" : undefined}
           >
             {displayedReply}
             {isTyping && <span className="ai-mode__caret" aria-hidden="true" />}
@@ -199,7 +203,7 @@ function AIMode({ onBack }: AIModeProps) {
         </>
       )}
     </div>
-  )
+  );
 }
 
-export default AIMode
+export default AIMode;
