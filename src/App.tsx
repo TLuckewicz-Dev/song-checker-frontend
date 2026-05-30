@@ -11,6 +11,7 @@ import {
   type DuplicateCheckResponse,
   type SelectedTrack,
 } from './api'
+import { useAiModeEnabled } from './hooks/useAiModeEnabled'
 
 type Stage =
   | 'intro'
@@ -28,6 +29,7 @@ function App() {
   const [duplicateResponse, setDuplicateResponse] =
     useState<DuplicateCheckResponse | null>(null)
   const [aiModeActive, setAiModeActive] = useState(false)
+  const { enabled: aiModeEnabled } = useAiModeEnabled()
 
   // On mount: kick off the Spotify token fetch in the background and start
   // the 5s intro timer. The token request runs in parallel with the intro
@@ -84,13 +86,15 @@ function App() {
     setAiModeActive(false)
   }
 
-  const handleEnterAiMode = () => setAiModeActive(true)
+  const handleEnterAiMode = () => {
+    if (aiModeEnabled) setAiModeActive(true)
+  }
   const handleExitAiMode = () => setAiModeActive(false)
 
   let stage: Stage
   if (!introDone) stage = 'intro'
   else if (!spotifyToken) stage = 'loader'
-  else if (!selectedTrack && aiModeActive) stage = 'ai-mode'
+  else if (!selectedTrack && aiModeEnabled && aiModeActive) stage = 'ai-mode'
   else if (!selectedTrack) stage = 'search'
   else if (!checkLoaderDone) stage = 'check-loader'
   else stage = 'results'
@@ -113,6 +117,7 @@ function App() {
               spotifyToken={spotifyToken}
               onSelectTrack={setSelectedTrack}
               onEnterAiMode={handleEnterAiMode}
+              showAiMode={aiModeEnabled}
             />
           )}
           {stage === 'ai-mode' && <AIMode onBack={handleExitAiMode} />}

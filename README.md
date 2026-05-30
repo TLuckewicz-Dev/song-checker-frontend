@@ -90,6 +90,25 @@ npm run dev
 
 Vite will print a local URL (usually `http://localhost:5173`).
 
+## AI Mode feature flag
+
+The **AI Mode** button on the search screen is controlled by a [Firebase Remote Config](https://firebase.google.com/docs/remote-config) boolean parameter:
+
+| Parameter | Type | Default (in-app) |
+|-----------|------|------------------|
+| `ai_mode_enabled` | Boolean | `false` |
+
+When the flag is off, the button is hidden and users cannot enter AI Mode. When it is on, the button appears after Remote Config is fetched (typically on first load).
+
+### Toggle from the Firebase console
+
+1. Open the [Firebase console](https://console.firebase.google.com/) and select the **song-checker-5a454** project.
+2. Go to **Build** → **Remote Config**.
+3. Edit the **ai_mode_enabled** parameter and set its value to `true` or `false`.
+4. Click **Publish changes**. Draft values are not sent to the app until you publish.
+
+After publishing, refresh the app to pick up the new value (in local dev, fetches are not throttled as aggressively). With real-time Remote Config updates enabled in the app, some users may see the change without a full reload once the client receives the update.
+
 ## Deploying to Firebase Hosting
 
 Build the production bundle and deploy to Firebase:

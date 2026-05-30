@@ -10,9 +10,15 @@ interface SearchProps {
   spotifyToken: string
   onSelectTrack: (track: SelectedTrack) => void
   onEnterAiMode: () => void
+  showAiMode: boolean
 }
 
-function Search({ spotifyToken, onSelectTrack, onEnterAiMode }: SearchProps) {
+function Search({
+  spotifyToken,
+  onSelectTrack,
+  onEnterAiMode,
+  showAiMode,
+}: SearchProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SpotifyTrack[]>([])
   const [loading, setLoading] = useState(false)
@@ -220,30 +226,32 @@ function Search({ spotifyToken, onSelectTrack, onEnterAiMode }: SearchProps) {
         )}
       </div>
 
-      <button
-        type="button"
-        className="search__ai-mode"
-        onClick={onEnterAiMode}
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
+      {showAiMode && (
+        <button
+          type="button"
+          className="search__ai-mode"
+          onClick={onEnterAiMode}
         >
-          <path
-            d="M11 2.5 13 9l6.5 2L13 13l-2 6.5L9 13 2.5 11 9 9 11 2.5z"
-            fill="currentColor"
-          />
-          <path
-            d="M18.5 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"
-            fill="currentColor"
-          />
-        </svg>
-        AI Mode
-      </button>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M11 2.5 13 9l6.5 2L13 13l-2 6.5L9 13 2.5 11 9 9 11 2.5z"
+              fill="currentColor"
+            />
+            <path
+              d="M18.5 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"
+              fill="currentColor"
+            />
+          </svg>
+          AI Mode
+        </button>
+      )}
     </div>
   )
 }

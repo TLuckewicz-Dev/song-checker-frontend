@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getRemoteConfig } from "firebase/remote-config";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,3 +20,11 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
+
+export const remoteConfig = getRemoteConfig(app);
+remoteConfig.defaultConfig = {
+  ai_mode_enabled: false,
+};
+if (import.meta.env.DEV) {
+  remoteConfig.settings.minimumFetchIntervalMillis = 0;
+}
