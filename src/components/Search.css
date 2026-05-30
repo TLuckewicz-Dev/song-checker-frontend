@@ -139,13 +139,18 @@
   }
 }
 
+.search__input-wrap {
+  position: relative;
+  width: 100%;
+}
+
 .search__ai-mode {
-  align-self: center;
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
+  margin: 16px auto 0;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  margin-bottom: 16px;
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text-muted);

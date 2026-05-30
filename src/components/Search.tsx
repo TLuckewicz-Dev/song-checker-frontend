@@ -107,32 +107,8 @@ function Search({ spotifyToken, onSelectTrack, onEnterAiMode }: SearchProps) {
         </div>
       </header>
 
-      <button
-        type="button"
-        className="search__ai-mode"
-        onClick={onEnterAiMode}
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <path
-            d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z"
-            fill="currentColor"
-          />
-          <path
-            d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z"
-            fill="currentColor"
-          />
-        </svg>
-        AI Mode
-      </button>
-
-      <div className="search__field">
+      <div className="search__input-wrap">
+        <div className="search__field">
         <svg
           className="search__icon"
           viewBox="0 0 24 24"
@@ -186,62 +162,88 @@ function Search({ spotifyToken, onSelectTrack, onEnterAiMode }: SearchProps) {
           inputMode="search"
           enterKeyHint="search"
         />
+        </div>
+
+        {showDropdown && (
+          <div className="search__dropdown" role="listbox">
+            {loading && <div className="search__status">Searching…</div>}
+            {error && (
+              <div className="search__status search__status--error">
+                {error}
+              </div>
+            )}
+            {!loading && !error && results.length === 0 && (
+              <div className="search__status">No results</div>
+            )}
+            {!loading && !error && results.length > 0 && (
+              <ul className="search__option-list">
+                {results.map((track) => {
+                  const cover = track.album.images[0]?.url
+                  return (
+                    <li key={track.id}>
+                      <button
+                        type="button"
+                        className="search__option"
+                        onClick={() => handleSelect(track)}
+                        role="option"
+                      >
+                        {cover ? (
+                          <img
+                            src={cover}
+                            alt=""
+                            width={44}
+                            height={44}
+                            className="search__cover"
+                          />
+                        ) : (
+                          <div
+                            className="search__cover-placeholder"
+                            aria-hidden="true"
+                          >
+                            ♪
+                          </div>
+                        )}
+                        <div className="search__meta">
+                          <div className="search__name">{track.name}</div>
+                          <div className="search__artists">
+                            {track.artists.map((a) => a.name).join(', ')}
+                          </div>
+                          <div className="search__album">{track.album.name}</div>
+                        </div>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
 
-      {showDropdown && (
-        <div className="search__dropdown" role="listbox">
-          {loading && <div className="search__status">Searching…</div>}
-          {error && (
-            <div className="search__status search__status--error">
-              {error}
-            </div>
-          )}
-          {!loading && !error && results.length === 0 && (
-            <div className="search__status">No results</div>
-          )}
-          {!loading && !error && results.length > 0 && (
-            <ul className="search__option-list">
-              {results.map((track) => {
-                const cover = track.album.images[0]?.url
-                return (
-                  <li key={track.id}>
-                    <button
-                      type="button"
-                      className="search__option"
-                      onClick={() => handleSelect(track)}
-                      role="option"
-                    >
-                      {cover ? (
-                        <img
-                          src={cover}
-                          alt=""
-                          width={44}
-                          height={44}
-                          className="search__cover"
-                        />
-                      ) : (
-                        <div
-                          className="search__cover-placeholder"
-                          aria-hidden="true"
-                        >
-                          ♪
-                        </div>
-                      )}
-                      <div className="search__meta">
-                        <div className="search__name">{track.name}</div>
-                        <div className="search__artists">
-                          {track.artists.map((a) => a.name).join(', ')}
-                        </div>
-                        <div className="search__album">{track.album.name}</div>
-                      </div>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
-      )}
+      <button
+        type="button"
+        className="search__ai-mode"
+        onClick={onEnterAiMode}
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M11 2.5 13 9l6.5 2L13 13l-2 6.5L9 13 2.5 11 9 9 11 2.5z"
+            fill="currentColor"
+          />
+          <path
+            d="M18.5 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"
+            fill="currentColor"
+          />
+        </svg>
+        AI Mode
+      </button>
     </div>
   )
 }
