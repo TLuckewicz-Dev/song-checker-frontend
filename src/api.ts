@@ -51,7 +51,11 @@ interface SpotifySearchResponse {
 }
 
 export async function getSpotifyToken(): Promise<SpotifyTokenResponse> {
-  const response = await fetch(`${FUNCTIONS_BASE_URL}/getSpotifyToken`)
+  const response = await fetch(`${FUNCTIONS_BASE_URL}/getSpotifyToken`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ group: '908beanbagboys' }),
+  })
   if (!response.ok) {
     throw new Error(`getSpotifyToken failed: ${response.status}`)
   }
