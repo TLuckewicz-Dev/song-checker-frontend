@@ -136,7 +136,9 @@ function AIMode({ onBack }: AIModeProps) {
 
       <header className="ai-mode__header">
         <h1 className="ai-mode__title">AI Mode</h1>
-        <p className="ai-mode__subtitle">Ask anything about the songs</p>
+        <p className="ai-mode__subtitle">
+          Ask questions based on our Music League history
+        </p>
       </header>
 
       {view === 'input' && (
@@ -146,7 +148,6 @@ function AIMode({ onBack }: AIModeProps) {
               className="ai-mode__textarea"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value.slice(0, MAX_PROMPT_LENGTH))}
-              placeholder="e.g. What kind of music does Alex usually submit?"
               maxLength={MAX_PROMPT_LENGTH}
               rows={5}
               autoFocus
@@ -184,15 +185,17 @@ function AIMode({ onBack }: AIModeProps) {
             {isTyping && <span className="ai-mode__caret" aria-hidden="true" />}
           </div>
 
-          <div className="ai-mode__actions">
-            <button
-              type="button"
-              className="ai-mode__submit"
-              onClick={handleAskAnother}
-            >
-              Ask a new question
-            </button>
-          </div>
+          {!isTyping && (
+            <div className="ai-mode__actions">
+              <button
+                type="button"
+                className="ai-mode__submit"
+                onClick={handleAskAnother}
+              >
+                Ask a new question
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
